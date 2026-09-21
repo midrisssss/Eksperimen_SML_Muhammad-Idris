@@ -5,7 +5,16 @@ import os
 
 def automate_preprocessing(input_path: str, output_path: str) -> pd.DataFrame:
     if not os.path.exists(input_path):
-        raise FileNotFoundError(f"File raw data tidak ditemukan di {input_path}")
+        print(f"File {input_path} tidak ditemukan. Mengunduh data raw...")
+        url = "https://raw.githubusercontent.com/mlflow/mlflow/master/tests/datasets/winequality-red.csv"
+        df_raw = pd.read_csv(url, sep=";")
+        
+        dir_name = os.path.dirname(input_path)
+        if dir_name:
+            os.makedirs(dir_name, exist_ok=True)
+            
+        df_raw.to_csv(input_path, index=False)
+        print(f"Data raw berhasil diunduh dan disimpan ke {input_path}")
     
     df = pd.read_csv(input_path)
     if ';' in open(input_path).readline():
@@ -32,6 +41,8 @@ def automate_preprocessing(input_path: str, output_path: str) -> pd.DataFrame:
     return df_final
 
 if __name__ == "__main__":
-    input_csv = "winequality_raw.csv"
-    output_csv = "preprocessing/winequality_preprocessing.csv"
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    input_csv = os.path.join(base_dir, "winequality_raw.csv")
+    output_csv = os.path.join(base_dir, "preprocessing", "winequality_preprocessing.csv")
+    
     automate_preprocessing(input_csv, output_csv)
